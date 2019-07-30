@@ -5,37 +5,29 @@ LABEL "org.label-schema.vendor"="OPOTEL Ltd" \
     maintainer="dev@opotel.com" \
     description="Docker Jenkins Slave; Build, Test and Deploy Node.js + Python Machine Learning projects and build Docker images from Dockerfile"
 
-ENV CONDA_DIR /opt/conda
-ENV PATH $CONDA_DIR/bin:$PATH
-ARG PY_VER=3.7
-ARG TENSORFLOW_VER=1.14
-ARG KERAS_VER=2.2.4
-
-RUN apt-get update && \
-    apt-get upgrade -y
+RUN apt-get update --fix-missing  && \
+    apt-get upgrade -y && \
+    apt-get install -y wget git libhdf5-dev g++ graphviz openssh-server bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 && \
+    apt-get clean
 
 RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh && bash nodesource_setup.sh
 RUN apt-get install -y wget git libhdf5-dev g++ graphviz nodejs
 RUN curl -sSL https://get.docker.com/ | sh
 
-RUN mkdir -p $CONDA_DIR && \
-    echo export PATH=$CONDA_DIR/bin:'$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet --output-document=anaconda.sh  https://repo.anaconda.com/archive/Anaconda2-2019.07-Linux-x86_64.sh && \
-    /bin/bash /anaconda.sh -f -b -p $CONDA_DIR && \
-    rm anaconda.sh
+RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh -O ~/anaconda.sh && \
+    /bin/bash ~/anaconda.sh -b -p /opt/conda && \
+    rm ~/anaconda.sh && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc && \
+    find /opt/conda/ -follow -type f -name '*.a' -delete && \
+    find /opt/conda/ -follow -type f -name '*.js.map' -delete && \
+    /opt/conda/bin/conda clean -afy
 
-
-RUN mkdir -p $CONDA_DIR && \
-    chown keras $CONDA_DIR -R && \
-    mkdir -p /py_src && \
-    chown keras /py_src
-
-RUN conda install -y python=${PY_VER} && \
+RUN conda install -y python=3.7 && \
     pip install --upgrade pip && \
-    pip install tensorflow==${TENSORFLOW_VER} && \
-    pip install keras==${KERAS_VER} && \
-    conda clean -yt
-
+    pip install tensorflow==1.14 && \
+    pip install keras==2.2.4
 
 
 
