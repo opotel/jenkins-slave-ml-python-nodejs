@@ -7,11 +7,10 @@ LABEL "org.label-schema.vendor"="OPOTEL Ltd" \
 
 RUN apt-get update --fix-missing  && \
     apt-get upgrade -y && \
-    apt-get install -y wget git libhdf5-dev g++ graphviz openssh-server bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 && \
+    curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh && bash nodesource_setup.sh && \
+    apt-get install -y wget git nodejs libhdf5-dev g++ graphviz openssh-server bzip2 ca-certificates libglib2.0-0 libxext6 libsm6 libxrender1 && \
     apt-get clean
 
-RUN curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh && bash nodesource_setup.sh
-RUN apt-get install -y wget git libhdf5-dev g++ graphviz nodejs
 RUN curl -sSL https://get.docker.com/ | sh
 
 RUN wget --quiet https://repo.anaconda.com/archive/Anaconda3-2019.07-Linux-x86_64.sh -O ~/anaconda.sh && \
